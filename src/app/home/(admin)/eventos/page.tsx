@@ -1,7 +1,8 @@
 "use client";
 
+import endpoints from '@/api/endpoints';
+import fetchAPI from '@/api/fetchAPI';
 import ComponentCard from '@/components/common/ComponentCard';
-import PageBreadcrumb from '@/components/common/PageBreadCrumb';
 import { Spinner } from '@/components/common/Spinner';
 import ListEventos from '@/components/eventos/ListEventos';
 import TextArea from '@/components/form/input/TextArea';
@@ -10,9 +11,12 @@ import Select from '@/components/form/Select';
 import Alert from '@/components/ui/alert/Alert';
 import Button from '@/components/ui/button/Button';
 import { Modal } from '@/components/ui/modal';
-import { ChevronDownIcon, PlusIcon } from '@/icons';
+import { CalenderIcon, ChevronDownIcon, PlusIcon } from '@/icons';
+import { convertirAFormatoISO } from '@/utils/common';
+import { Spanish } from 'flatpickr/dist/l10n/es';
 import "flatpickr/dist/themes/light.css";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import Flatpickr from "react-flatpickr";
 
 export default function page() {
 
@@ -25,14 +29,19 @@ export default function page() {
     //
     const [loading, setLoading] = useState(false)
     //
-    const [openModalCrearEvento, setOpenModalCrearEvento] = useState(true)
-
+    const [openModalCrearEvento, setOpenModalCrearEvento] = useState(false)
+    //
+    const [idEvento, setIdEvento] = useState(0);
     const [tituloEvento, setTituloEvento] = useState("");
     const [fechaInicioEvento, setFechaInicioEvento] = useState("");
     const [fechaFinalEvento, setFechaFinalEvento] = useState("");
-    const [codigoCategoria, setCodigoCategoria] = useState(0);
+    const [codigoCategoria, setCodigoCategoria] = useState(1);
     const [descripcion, setDescripcion] = useState("");
     const [cantidadAforo, setCantidadAforo] = useState(0);
+    //
+    const [dataEventos, setDataEventos] = useState([]);
+    //
+    const [estadoEvento, setEstadoEvento] = useState(1);
 
 
 
@@ -42,26 +51,97 @@ export default function page() {
         { value: 3, label: "Evento de certificación" },
     ];
 
+    const optionsEstadoEvento = [
+        { value: 1, label: "Activos" },
+        { value: 2, label: "Suspendidos" },
+        { value: 3, label: "Cerrados" },
+    ];
+
     const handleSelectChange = (value: string) => {
         setCodigoCategoria(Number(value));
+    };
+
+    const handleSelectChangeEventos = (value: string) => {
+        setEstadoEvento(Number(value));
     };
 
     const guardarEvento = async () => {
         try {
             const request = {
+                idEvento: (idEvento == 0 ? null : idEvento),
                 nombre: tituloEvento,
-                fechaInicio: fechaInicioEvento,
-                fechaFin: fechaFinalEvento,
+                fechaInicio: convertirAFormatoISO(new Date(fechaInicioEvento)),
+                fechaFin: convertirAFormatoISO(new Date(fechaFinalEvento)),
                 descripcion: descripcion,
                 idCategoria: codigoCategoria,
-                cantidadAforo: cantidadAforo
+                cantidadAforo: cantidadAforo,
+                estado: 1,
+                banner: "foto.png"
             }
 
-            console.log("BODY: ", JSON.stringify(request, null, 2))
+            const response = await fetchAPI(endpoints.saveEvento, 'POST', request)
+            console.log("BODY: ", JSON.stringify(response, null, 2))
+            setVisibleAlert(true)
+            setLoading(true)
+
+            if (response.status == 1) {
+                getAllEventos()
+                setTitle("Correcto")
+                setMessage(response.message)
+                setVariant("success")
+            } else {
+                setTitle("Error")
+                setMessage(response.message)
+                setVariant("error")
+            }
         } catch (error) {
             console.log("ERROR ", error)
+        } finally {
+            setLoading(false);
+            setOpenModalCrearEvento(false)
+            limpiarCampos()
+            setTimeout(() => setVisibleAlert(false), 3000);
         }
     }
+
+    const getAllEventos = async () => {
+        setLoading(true)
+        try {
+            setVisibleAlert(true)
+            const response = await fetchAPI(endpoints.getAllEventos + '?estado=' + (estadoEvento ? estadoEvento : 1), 'GET')
+            console.log(JSON.stringify(response, null, 2))
+            if (response.status == 1) {
+                setDataEventos(response.data)
+                setTitle("Eventos")
+                setMessage(response.message)
+                setVariant("success")
+            } else {
+                setDataEventos([])
+                setMessage(response.message)
+                setVariant("info")
+            }
+        } catch (error) {
+            console.log("ERROR", error)
+        } finally {
+            setLoading(false);
+            setTimeout(() => setVisibleAlert(false), 3000);
+        }
+    }
+
+    const limpiarCampos = () => {
+        setIdEvento(0)
+        setTituloEvento("")
+        setFechaInicioEvento("")
+        setFechaFinalEvento("")
+        setCodigoCategoria(0)
+        setDescripcion("")
+        setCantidadAforo(0)
+    }
+
+    useEffect(() => {
+        getAllEventos()
+    }, [estadoEvento])
+
 
 
     return (
@@ -78,17 +158,37 @@ export default function page() {
                 sx="w-full h-full fixed top-0 left-0 blue-bg-chas-op " />
 
             <ComponentCard title="">
-                <Button endIcon={<PlusIcon />} size='sm' className='bg-uees' onClick={() => setOpenModalCrearEvento(true)}>Crear evento</Button>
+                <div className='flex gap-2'>
+                    <Button endIcon={<PlusIcon />} size='sm' className='bg-uees' onClick={() => setOpenModalCrearEvento(true)}>Crear evento</Button>
+
+                    <div className="relative">
+                        <Select
+                            options={optionsEstadoEvento}
+                            placeholder="Filtre los eventos"
+                            onChange={handleSelectChangeEventos}
+                            className="dark:bg-dark-900"
+                        />
+                        <span className="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
+                            <ChevronDownIcon />
+                        </span>
+                    </div>
+                </div>
 
                 <ListEventos
-                    setLoading={setLoading}
-                    date={""}
-                    setVisibleAlert={setVisibleAlert}
-                    setTitle={setTitle}
-                    setMessage={setMessage}
-                    setVariant={setVariant}
+                    eventos={dataEventos}
+                    setOpenModalCrearEvento={setOpenModalCrearEvento}
+
+                    setIdEvento={setIdEvento}
+                    setTituloEvento={setTituloEvento}
+                    setFechaInicioEvento={setFechaInicioEvento}
+                    setFechaFinalEvento={setFechaFinalEvento}
+                    setCodigoCategoria={setCodigoCategoria}
+                    setDescripcion={setDescripcion}
+                    setCantidadAforo={setCantidadAforo}
                 />
+
             </ComponentCard>
+
 
             {/*  */}
             {/* MODAL CREAR EVENTO */}
@@ -101,7 +201,7 @@ export default function page() {
                 <div className="flex flex-col px-2 overflow-y-auto custom-scrollbar">
                     <div>
                         <h5 className="mb-2 font-semibold text-gray-800 modal-title text-theme-xl dark:text-white/90 lg:text-2xl">
-                            Añadir evento
+                            Añadir / Editar evento
                         </h5>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                             Planifica tu próximo gran momento: programa o edita un evento para mantenerte al día.
@@ -126,32 +226,66 @@ export default function page() {
 
                                 {/* Start Date */}
                                 <div className="w-1/2">
-                                    <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                                        Fecha de inicio
-                                    </label>
-                                    <input
-                                        id="event-start-date"
-                                        type="date"
-                                        value={fechaInicioEvento}
-                                        onChange={(e) => setFechaInicioEvento(e.target.value)}
-                                        className="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                                    />
+                                    <div className="flex justify-start space-x-4">
+                                        <div className="relative">
+                                            <Label htmlFor="startDate">Fecha inicio</Label>
+                                            <div className="w-70 flatpickr-wrapper">
+                                                <Flatpickr
+                                                    className="w-70 py-2 pl-3 pr-10 text-sm border border-gray-300 rounded-md h-11 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                                                    placeholder="Seleccione una fecha"
+                                                    options={{
+                                                        locale: Spanish,
+                                                        enableTime: true,
+                                                        enableSeconds: true,
+                                                        time_24hr: true,
+                                                        dateFormat: "d-m-Y H:i:s",
+                                                    }}
+                                                    value={fechaInicioEvento}
+                                                    onChange={(selectedDates) => {
+                                                        if (selectedDates.length > 0) {
+                                                            setFechaInicioEvento(selectedDates[0].toISOString()); // Convierte a string en formato ISO
+                                                        }
+                                                    }}
+
+                                                />
+                                                <span className="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
+                                                    <CalenderIcon />
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {/* End Date */}
                                 <div className="w-1/2">
-                                    <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                                        Fecha final
-                                    </label>
-                                    <input
-                                        id="event-end-date"
-                                        type="date"
-                                        value={fechaFinalEvento}
-                                        onChange={(e) => setFechaFinalEvento(e.target.value)}
-                                        className="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                                    />
+                                    <div className="flex justify-start space-x-4">
+                                        <div className="relative">
+                                            <Label htmlFor="startDate">Fecha final</Label>
+                                            <div className="w-70 flatpickr-wrapper">
+                                                <Flatpickr
+                                                    className="w-70 py-2 pl-3 pr-10 text-sm border border-gray-300 rounded-md h-11 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                                                    placeholder="Seleccione una fecha"
+                                                    options={{
+                                                        locale: Spanish,
+                                                        enableTime: true,
+                                                        enableSeconds: true,
+                                                        time_24hr: true,
+                                                        dateFormat: "d-m-Y H:i:s",
+                                                    }}
+                                                    value={fechaFinalEvento}
+                                                    onChange={(selectedDates) => {
+                                                        if (selectedDates.length > 0) {
+                                                            setFechaFinalEvento(selectedDates[0].toISOString()); // Convierte a string en formato ISO
+                                                        }
+                                                    }}
+                                                />
+                                                <span className="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
+                                                    <CalenderIcon />
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-
                             </div>
                         </div>
 
@@ -160,6 +294,7 @@ export default function page() {
                             <div className="relative">
                                 <Select
                                     options={options}
+                                    defaultValue={codigoCategoria}
                                     placeholder="Seleccione una opción"
                                     onChange={handleSelectChange}
                                     className="dark:bg-dark-900"

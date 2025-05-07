@@ -38,9 +38,27 @@ export const formatDateSmall = (dateString: string) => {
 // Función para convertir fecha tipo "27/1/2025 16:14" a formato "2025-01-27T16:14:00"
 export const formatDateTime = (dateStr: string): string => {
     const [datePart, timePart] = dateStr.split(" ");
-    const [day, month, year] = datePart.split("/").map((part) => part.padStart(2, "0"));
+    const [day, month, year] = datePart.split("-").map((part) => part.padStart(2, "0"));
     return `${year}-${month}-${day}T${timePart || "00:00"}`;
 }
+
+function padZero(n: any) {
+    return n.toString().padStart(2, '0');
+}
+
+export const convertirAFormatoISO = (fecha: Date): string => {
+    const year = fecha.getFullYear();
+    const month = padZero(fecha.getMonth() + 1); // ¡Asegúrate de sumar +1 aquí!
+    const day = padZero(fecha.getDate());
+
+    const hours = padZero(fecha.getHours());
+    const minutes = padZero(fecha.getMinutes());
+    const seconds = padZero(fecha.getSeconds());
+
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+};
+
+
 
 
 
