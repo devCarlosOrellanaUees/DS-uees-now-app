@@ -90,9 +90,6 @@ export default function page() {
                 />
             </ComponentCard>
 
-
-
-
             {/*  */}
             {/* MODAL CREAR EVENTO */}
             {/*  */}
