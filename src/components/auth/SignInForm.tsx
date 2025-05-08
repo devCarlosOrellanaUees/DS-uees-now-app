@@ -63,12 +63,20 @@ export default function SignInForm() {
         password: password
       });
 
-      // Guardar el token en sessionStorage
+      
       sessionStorage.setItem("user", response.data);
       setUser(response.data);
       if (response.status == 1) {
 
-        router.replace('/home');
+        if (response.data.idRol == 1) {
+          //ADMIN
+          router.replace('/home');
+        } else {
+          //ESTUDIANTE
+          router.replace('/estudiante/home');
+        }
+
+
       } else {
         setVisibleAlert(true);
         setTitle("Error");
@@ -96,6 +104,14 @@ export default function SignInForm() {
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setEmail(value);
+    validateEmail(value);
+  };
+
+  const validateEmail = (value: string) => {
+    const isValidEmail =
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value);
+    setError(!isValidEmail);
+    return isValidEmail;
   };
 
 
@@ -130,7 +146,7 @@ export default function SignInForm() {
                       defaultValue={email}
                       error={error}
                       success={!error}
-                      placeholder="usuario123"
+                      placeholder="usuario@correo.com"
                       onChange={handleEmailChange}
                       hint={error ? "Ingrese un correo electrónico correcto." : ""}
                     />

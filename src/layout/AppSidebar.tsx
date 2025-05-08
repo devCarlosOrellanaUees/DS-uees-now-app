@@ -11,6 +11,8 @@ import {
   TableIcon,
   UserCircleIcon
 } from "../icons/index";
+import { FaMusic } from "react-icons/fa6";
+import { useAuth } from "@/context/AuthContext";
 
 type NavItem = {
   name: string;
@@ -19,11 +21,11 @@ type NavItem = {
   subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
 };
 
-/* TODO: NAV ITEMS */
-const navItems: NavItem[] = [
+/* TODO: NAV ITEMS ADMINISTRADOR*/
+const navItemsAdmin: NavItem[] = [
   {
     icon: <GridIcon />,
-    name: "Inicio",
+    name: "Dashboard",
     path: "/home"
   },
   {
@@ -43,6 +45,24 @@ const navItems: NavItem[] = [
   },
 ];
 
+const navItemsEstudiante: NavItem[] = [
+  {
+    icon: <FaMusic />,
+    name: "Eventos publicados",
+    path: "/estudiante/home"
+  },
+  {
+    name: "Mis eventos",
+    icon: <TableIcon />,
+    path: "/estudiante/eventos"
+  },
+  {
+    name: "Certificados",
+    icon: <TableIcon />,
+    path: "/home/inscripciones"
+  }
+];
+
 const othersItems: NavItem[] = [
   {
     icon: <UserCircleIcon />,
@@ -54,6 +74,14 @@ const othersItems: NavItem[] = [
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
+
+  const { user } = useAuth()
+
+
+  /* TODO: RENDERIZADO DE OPCIONES EN BASE A ROL */
+  const navItems: NavItem[] = [
+    ...(user?.idRol == 1 ? navItemsAdmin : navItemsEstudiante)
+  ];
 
   const renderMenuItems = (
     navItems: NavItem[],
