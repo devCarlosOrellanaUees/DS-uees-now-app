@@ -10,7 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 
 export default function UserDropdown() {
 
-  const { userData, logout } = useAuth();  
+  const { user, logout } = useAuth();  
 
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
@@ -74,10 +74,10 @@ export default function UserDropdown() {
       >
         <div>
           <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-          {userData?.name || "Administrador Etikos"}
+          {user?.user || "Administrador Etikos"}
           </span>
           <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-           {userData?.email || "etikos@gamil.com.ec"}
+           {user?.user || "etikos@gamil.com.ec"}
           </span>
         </div>
 

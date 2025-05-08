@@ -1,22 +1,3 @@
-import { jwtDecode } from 'jwt-decode';
-
-export interface DecodedToken {
-    id: string;
-    user: string;
-    email: string;
-    name: string;
-    institution_id: string;
-    institution_name: string;
-    exp: number;
-    iat: number;
-    institutionCode: number;
-    initialDate: string;
-    lastConciliationDate: string;
-    avatar: string;
-    primaryColor: string;
-    secondaryColor: string;
-}
-
 // Formatea una fecha en formato 2025-03-03T02:01:31.658Z
 // Retornar la fecha en formato dd-mm-yyyy hh:mm:ss
 export const formatDateSmall = (dateString: string) => {
@@ -58,28 +39,3 @@ export const convertirAFormatoISO = (fecha: Date): string => {
     return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
 };
 
-
-
-
-
-
-
-
-//Decodifica el token JWT y verifica su validez
-export class TokenUtils {
-    static getUserData(token: string | null): DecodedToken | null {
-        if (!token) return null;
-
-        try {
-            const decoded = jwtDecode<DecodedToken>(token);
-            const now = Math.floor(Date.now() / 1000);
-            if (decoded.exp < now) {
-                return null;
-            }
-            return decoded;
-        } catch (error) {
-            console.error("Error al decodificar el token:", error);
-            return null;
-        }
-    }
-}

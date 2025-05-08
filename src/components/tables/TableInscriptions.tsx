@@ -79,7 +79,7 @@ export default function TableInscriptions({
   //
   const [isLoading, setIsLoading] = useState(false);
   //
-  const { userData } = useAuth();
+  const { user } = useAuth();
 
   const handlePageChangePage = (page: number) => {
     setOfset(page);
@@ -215,7 +215,7 @@ export default function TableInscriptions({
 
     try {
       const requestBody = {
-        institutioncode: userData?.institutionCode,
+        //institutioncode: userData?.institutionCode,
         startDate: '',
         finishDate: '',
         limit: totalRegistros,

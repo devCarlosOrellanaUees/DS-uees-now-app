@@ -56,8 +56,6 @@ export default function ListEventos({
     setEventoSelect
 }: ListEventosProps) {
 
-    //
-    const { userData } = useAuth();
     const [openedDropdown, setOpenedDropdown] = useState<number | null>(null);
 
     const optionsSettigns = [

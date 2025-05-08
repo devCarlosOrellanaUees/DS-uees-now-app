@@ -41,7 +41,7 @@ export default function SignInForm() {
   const [email, setEmail] = useState('admin');
   const [password, setPassword] = useState('admin');
   //Token
-  const { setToken } = useAuth();
+  const { setUser } = useAuth();
 
   const handleSubmitLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,8 +64,8 @@ export default function SignInForm() {
       });
 
       // Guardar el token en sessionStorage
-      /* sessionStorage.setItem("authToken", response.token);
-      setToken(response.token); */
+      sessionStorage.setItem("user", response.data);
+      setUser(response.data);
       if (response.status == 1) {
 
         router.replace('/home');
