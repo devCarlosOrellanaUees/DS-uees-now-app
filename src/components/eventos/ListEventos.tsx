@@ -26,6 +26,8 @@ interface Evento {
 interface ListEventosProps {
     eventos: Evento[];
     setOpenModalCrearEvento: Dispatch<SetStateAction<boolean>>;
+    setOpenConfirmationActivacion: Dispatch<SetStateAction<boolean>>;
+    setOpenConfirmationCerrar: Dispatch<SetStateAction<boolean>>;
     setIdEvento: Dispatch<SetStateAction<number>>;
     setTituloEvento: Dispatch<SetStateAction<string>>;
     setFechaInicioEvento: Dispatch<SetStateAction<string>>;
@@ -33,11 +35,16 @@ interface ListEventosProps {
     setCodigoCategoria: Dispatch<SetStateAction<number>>;
     setDescripcion: Dispatch<SetStateAction<string>>;
     setCantidadAforo: Dispatch<SetStateAction<number>>;
+    setOpenConfirmation: Dispatch<SetStateAction<boolean>>;
+    setEventoSelect: Dispatch<SetStateAction<any>>
 }
 
 export default function ListEventos({
     eventos,
     setOpenModalCrearEvento,
+    setOpenConfirmationActivacion,
+    setOpenConfirmationCerrar,
+
     setIdEvento,
     setTituloEvento,
     setFechaInicioEvento,
@@ -45,15 +52,17 @@ export default function ListEventos({
     setCodigoCategoria,
     setDescripcion,
     setCantidadAforo,
+    setOpenConfirmation,
+    setEventoSelect
 }: ListEventosProps) {
 
-    const [openConfirmation, setOpenConfirmation] = useState<boolean>(false);
     //
     const { userData } = useAuth();
     const [openedDropdown, setOpenedDropdown] = useState<number | null>(null);
 
     const optionsSettigns = [
-        { key: 3, option: 'Editar' },
+        { key: 4, option: 'Editar' },
+        { key: 3, option: 'Cerrar' },
         { key: 2, option: 'Suspender' },
         { key: 1, option: 'Activar' }
     ]
@@ -68,27 +77,31 @@ export default function ListEventos({
     };
 
     const handleSettingsClick = (evento: Evento, option: string) => {
+
+        setIdEvento(evento.idEvento)
+        setTituloEvento(evento.nombre)
+        setFechaInicioEvento(new Date(evento.fechaInicio).toISOString());
+        setFechaFinalEvento(new Date(evento.fechaFin).toISOString());
+        setCodigoCategoria(evento.idCategoria)
+        setDescripcion(evento.descripcion ?? '')
+        setCantidadAforo(evento.cantidadAforo)
+
         switch (option) {
             case 'Editar':
-                console.log('EDITANDO evento:', JSON.stringify(evento, null, 2));
-
-                setIdEvento(evento.idEvento)
-                setTituloEvento(evento.nombre)
-                setFechaInicioEvento(new Date(evento.fechaInicio).toISOString());
-                setFechaFinalEvento(new Date(evento.fechaFin).toISOString());
-                setCodigoCategoria(evento.idCategoria)
-                setDescripcion(evento.descripcion ?? '')
-                setCantidadAforo(evento.cantidadAforo)
-
                 setOpenModalCrearEvento(true)
+
                 break;
             case 'Suspender':
-                console.log('SUSPENDIENDO evento:', evento);
-                // lógica para suspender
+                setOpenConfirmation(true)
+
+                break;
+            case 'Cerrar':
+                setOpenConfirmationCerrar(true)
+
                 break;
             case 'Activar':
-                console.log('ACTIVANDO evento:', evento);
-                // lógica para activar
+                setOpenConfirmationActivacion(true)
+
                 break;
             default:
                 console.warn('Opción no reconocida:', option);
@@ -202,44 +215,6 @@ export default function ListEventos({
                     <h1 className="text-gray-500">No hay eventos</h1>
                 </div>
             )}
-
-
-            {/*  */}
-            {/* MODAL CONFIRMATION CONCILIATION */}
-            {/*  */}
-            <Modal
-                isOpen={openConfirmation}
-                onClose={() => setOpenConfirmation(false)}
-                showCloseButton={false}
-                className="max-w-[507px] p-6 lg:p-10"
-            >
-                <div className="text-center">
-                    <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90 sm:text-title-sm">
-                        ¿Está seguro?
-                    </h4>
-                    <p className="text-sm leading-6 text-gray-500 dark:text-gray-400">
-                        Los cambios que realice no se pueden deshacer. ¿Está seguro de que desea continuar?
-                    </p>
-                    <p className="text-sm leading-6 text-gray-900 dark:text-gray-400">
-                        Fecha de corte:
-                    </p>
-
-                    <div className="flex items-center justify-center w-full gap-3 mt-8">
-                        <Button size="sm" variant="outline" onClick={() => setOpenConfirmation(false)}>
-                            Cerrar
-                        </Button>
-                        <Button size="sm" onClick={() => alert("Ejecutar confirmación")}>
-                            Aceptar
-                        </Button>
-                    </div>
-                </div>
-            </Modal>
-            {/*  */}
-            {/* END MODAL CONFIRMATION CONCILIATION */}
-            {/*  */}
-
-
-
         </div>
     )
 }

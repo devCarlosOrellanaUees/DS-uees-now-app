@@ -18,6 +18,18 @@ import "flatpickr/dist/themes/light.css";
 import { useEffect, useState } from 'react';
 import Flatpickr from "react-flatpickr";
 
+interface Evento {
+    idEvento: number;
+    nombre: string;
+    fechaInicio: Date;
+    fechaFin: Date;
+    descripcion: string | null;
+    idCategoria: number;
+    cantidadAforo: number;
+    estado: number;
+    banner: string;
+}
+
 export default function page() {
 
 
@@ -30,6 +42,9 @@ export default function page() {
     const [loading, setLoading] = useState(false)
     //
     const [openModalCrearEvento, setOpenModalCrearEvento] = useState(false)
+    const [openConfirmation, setOpenConfirmation] = useState<boolean>(false);
+    const [openConfirmationActivacion, setOpenConfirmationActivacion] = useState<boolean>(false);
+    const [openConfirmationCerrar, setOpenConfirmationCerrar] = useState<boolean>(false);
     //
     const [idEvento, setIdEvento] = useState(0);
     const [tituloEvento, setTituloEvento] = useState("");
@@ -42,6 +57,8 @@ export default function page() {
     const [dataEventos, setDataEventos] = useState([]);
     //
     const [estadoEvento, setEstadoEvento] = useState(1);
+    //
+    const [eventoSelected, setEventoSelect] = useState<Evento>();
 
 
 
@@ -75,12 +92,12 @@ export default function page() {
                 descripcion: descripcion,
                 idCategoria: codigoCategoria,
                 cantidadAforo: cantidadAforo,
-                estado: 1,
+                estado: eventoSelected?.estado || 1,
                 banner: "foto.png"
             }
 
+            console.log("BODY: ", JSON.stringify(request, null, 2))
             const response = await fetchAPI(endpoints.saveEvento, 'POST', request)
-            console.log("BODY: ", JSON.stringify(response, null, 2))
             setVisibleAlert(true)
             setLoading(true)
 
@@ -97,6 +114,7 @@ export default function page() {
         } catch (error) {
             console.log("ERROR ", error)
         } finally {
+            setEventoSelect(undefined)
             setLoading(false);
             setOpenModalCrearEvento(false)
             limpiarCampos()
@@ -107,23 +125,139 @@ export default function page() {
     const getAllEventos = async () => {
         setLoading(true)
         try {
-            setVisibleAlert(true)
+            setDataEventos([])
             const response = await fetchAPI(endpoints.getAllEventos + '?estado=' + (estadoEvento ? estadoEvento : 1), 'GET')
-            console.log(JSON.stringify(response, null, 2))
+            //console.log(JSON.stringify(response, null, 2))
             if (response.status == 1) {
                 setDataEventos(response.data)
-                setTitle("Eventos")
-                setMessage(response.message)
-                setVariant("success")
             } else {
                 setDataEventos([])
+                setVisibleAlert(true)
+                setTitle("Error")
                 setMessage(response.message)
-                setVariant("info")
+                setVariant("error")
             }
         } catch (error) {
             console.log("ERROR", error)
         } finally {
+
             setLoading(false);
+            setTimeout(() => setVisibleAlert(false), 3000);
+        }
+    }
+
+    const suspenderEvento = async () => {
+        try {
+            const request = {
+                idEvento: (idEvento),
+                nombre: tituloEvento,
+                fechaInicio: convertirAFormatoISO(new Date(fechaInicioEvento)),
+                fechaFin: convertirAFormatoISO(new Date(fechaFinalEvento)),
+                descripcion: descripcion,
+                idCategoria: codigoCategoria,
+                cantidadAforo: cantidadAforo,
+                estado: 2,
+                banner: "foto.png"
+            }
+            const response = await fetchAPI(endpoints.saveEvento, 'POST', request)
+            //console.log("BODY: ", JSON.stringify(response, null, 2))
+            setVisibleAlert(true)
+            setLoading(true)
+
+            if (response.status == 1) {
+                getAllEventos()
+                setTitle("Correcto")
+                setMessage("Evento suspendido correctamente")
+                setVariant("success")
+            } else {
+                setTitle("Error")
+                setMessage(response.message)
+                setVariant("error")
+            }
+        } catch (error) {
+            console.log("ERROR ", error)
+        } finally {
+            setEventoSelect(undefined)
+            setLoading(false);
+            setOpenConfirmation(false)
+            setTimeout(() => setVisibleAlert(false), 3000);
+        }
+    }
+
+    const activarEvento = async () => {
+        try {
+            const request = {
+                idEvento: (idEvento),
+                nombre: tituloEvento,
+                fechaInicio: convertirAFormatoISO(new Date(fechaInicioEvento)),
+                fechaFin: convertirAFormatoISO(new Date(fechaFinalEvento)),
+                descripcion: descripcion,
+                idCategoria: codigoCategoria,
+                cantidadAforo: cantidadAforo,
+                estado: 1,
+                banner: "foto.png"
+            }
+
+            const response = await fetchAPI(endpoints.saveEvento, 'POST', request)
+            //console.log("BODY: ", JSON.stringify(response, null, 2))
+            setVisibleAlert(true)
+            setLoading(true)
+
+            if (response.status == 1) {
+                getAllEventos()
+                setTitle("Correcto")
+                setMessage("Evento activado correctamente")
+                setVariant("success")
+            } else {
+                setTitle("Error")
+                setMessage(response.message)
+                setVariant("error")
+            }
+        } catch (error) {
+            console.log("ERROR ", error)
+        } finally {
+            setEventoSelect(undefined)
+            setLoading(false);
+            setOpenConfirmationActivacion(false)
+            setTimeout(() => setVisibleAlert(false), 3000);
+        }
+    }
+
+    const cerrarEvento = async () => {
+        try {
+            const request = {
+                idEvento: idEvento,
+                nombre: tituloEvento,
+                fechaInicio: convertirAFormatoISO(new Date(fechaInicioEvento)),
+                fechaFin: convertirAFormatoISO(new Date(fechaFinalEvento)),
+                descripcion: descripcion,
+                idCategoria: codigoCategoria,
+                cantidadAforo: cantidadAforo,
+                estado: 3,
+                banner: "foto.png"
+            }
+
+            const response = await fetchAPI(endpoints.saveEvento, 'POST', request)
+            //console.log("BODY: ", JSON.stringify(response, null, 2))
+            setVisibleAlert(true)
+            setLoading(true)
+
+            if (response.status == 1) {
+                getAllEventos()
+                setTitle("Correcto")
+                setMessage("Evento cerrado")
+                setVariant("success")
+            } else {
+                setTitle("Error")
+                setMessage(response.message)
+                setVariant("error")
+            }
+        } catch (error) {
+            console.log("ERROR ", error)
+        } finally {
+            setEventoSelect(undefined)
+            setLoading(false);
+            setOpenConfirmationCerrar(false)
             setTimeout(() => setVisibleAlert(false), 3000);
         }
     }
@@ -133,7 +267,7 @@ export default function page() {
         setTituloEvento("")
         setFechaInicioEvento("")
         setFechaFinalEvento("")
-        setCodigoCategoria(0)
+        setCodigoCategoria(1)
         setDescripcion("")
         setCantidadAforo(0)
     }
@@ -177,6 +311,9 @@ export default function page() {
                 <ListEventos
                     eventos={dataEventos}
                     setOpenModalCrearEvento={setOpenModalCrearEvento}
+                    setOpenConfirmation={setOpenConfirmation}
+                    setOpenConfirmationActivacion={setOpenConfirmationActivacion}
+                    setOpenConfirmationCerrar={setOpenConfirmationCerrar}
 
                     setIdEvento={setIdEvento}
                     setTituloEvento={setTituloEvento}
@@ -185,6 +322,8 @@ export default function page() {
                     setCodigoCategoria={setCodigoCategoria}
                     setDescripcion={setDescripcion}
                     setCantidadAforo={setCantidadAforo}
+
+                    setEventoSelect={setEventoSelect}
                 />
 
             </ComponentCard>
@@ -195,7 +334,10 @@ export default function page() {
             {/*  */}
             <Modal
                 isOpen={openModalCrearEvento}
-                onClose={() => setOpenModalCrearEvento(false)}
+                onClose={() => {
+                    limpiarCampos()
+                    setOpenModalCrearEvento(false)
+                }}
                 className="max-w-[700px] p-6 lg:p-10"
             >
                 <div className="flex flex-col px-2 overflow-y-auto custom-scrollbar">
@@ -222,7 +364,7 @@ export default function page() {
                         </div>
 
                         <div className="mt-2">
-                            <div className="flex gap-4"> {/* Contenedor flex para alinear en fila */}
+                            <div className="flex gap-4">
 
                                 {/* Start Date */}
                                 <div className="w-1/2">
@@ -332,7 +474,10 @@ export default function page() {
                     </div>
                     <div className="flex items-center gap-3 mt-6 modal-footer sm:justify-end">
                         <button
-                            onClick={() => setOpenModalCrearEvento(false)}
+                            onClick={() => {
+                                limpiarCampos()
+                                setOpenModalCrearEvento(false)
+                            }}
                             type="button"
                             className="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
                         >
@@ -348,6 +493,97 @@ export default function page() {
                     </div>
                 </div>
             </Modal>
+
+
+            {/*  */}
+            {/* MODAL CONFIMACION DE SUSPENCION */}
+            {/*  */}
+            <Modal
+                isOpen={openConfirmation}
+                onClose={() => setOpenConfirmation(false)}
+                showCloseButton={false}
+                className="max-w-[507px] p-6 lg:p-10"
+            >
+                <div className="text-center">
+                    <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90 sm:text-title-sm">
+                        ¿Está seguro?
+                    </h4>
+                    <p className="text-sm leading-6 text-gray-500 dark:text-gray-400">
+                        Desea suspender el evento: {tituloEvento}
+                    </p>
+                    <div className="flex items-center justify-center w-full gap-3 mt-8">
+                        <Button size="sm" variant="outline" onClick={() => setOpenConfirmation(false)}>
+                            Cerrar
+                        </Button>
+                        <Button size="sm" onClick={() => { suspenderEvento() }}>
+                            Aceptar
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+            {/*  */}
+            {/* END MODAL CONFIRMATION SUSPENCION */}
+            {/*  */}
+
+            {/*  */}
+            {/* MODAL CONFIMACION DE ACTIVACION */}
+            {/*  */}
+            <Modal
+                isOpen={openConfirmationActivacion}
+                onClose={() => setOpenConfirmationActivacion(false)}
+                showCloseButton={false}
+                className="max-w-[507px] p-6 lg:p-10"
+            >
+                <div className="text-center">
+                    <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90 sm:text-title-sm">
+                        Activar evento
+                    </h4>
+                    <p className="text-sm leading-6 text-gray-500 dark:text-gray-400">
+                        {tituloEvento}
+                    </p>
+                    <div className="flex items-center justify-center w-full gap-3 mt-8">
+                        <Button size="sm" variant="outline" onClick={() => setOpenConfirmationActivacion(false)}>
+                            Cerrar
+                        </Button>
+                        <Button size="sm" onClick={() => { activarEvento() }}>
+                            Aceptar
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+            {/*  */}
+            {/* END MODAL CONFIRMATION AVTIVACION */}
+            {/*  */}
+
+            {/*  */}
+            {/* MODAL CONFIMACION DE CIERRE */}
+            {/*  */}
+            <Modal
+                isOpen={openConfirmationCerrar}
+                onClose={() => setOpenConfirmationCerrar(false)}
+                showCloseButton={false}
+                className="max-w-[507px] p-6 lg:p-10"
+            >
+                <div className="text-center">
+                    <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90 sm:text-title-sm">
+                        ¿Está seguro?
+                    </h4>
+                    <p className="text-sm leading-6 text-gray-500 dark:text-gray-400">
+                        Desea cerrar el evento : {tituloEvento}
+                    </p>
+                    <div className="flex items-center justify-center w-full gap-3 mt-8">
+                        <Button size="sm" variant="outline" onClick={() => setOpenConfirmationCerrar(false)}>
+                            Cerrar
+                        </Button>
+                        <Button size="sm" onClick={() => { cerrarEvento() }}>
+                            Aceptar
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+            {/*  */}
+            {/* END MODAL CONFIRMATION CIERRE */}
+            {/*  */}
 
 
 

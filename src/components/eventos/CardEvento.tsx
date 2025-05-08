@@ -16,7 +16,7 @@ const CardEvento = ({ evento }: { evento: Evento }) => {
         <div className="max-w-md bg-white dark:bg-gray-900 rounded-[18px] shadow-md overflow-hidden border border-gray-300 dark:border-gray-700">
             {/* Banner */}
             <img
-                src={evento.banner}
+                src={"/"}
                 alt="Banner del evento"
                 className="w-full h-48 object-cover"
             />
