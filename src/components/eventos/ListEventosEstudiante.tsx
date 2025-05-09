@@ -7,6 +7,7 @@ import Badge from '../ui/badge/Badge';
 import Button from '../ui/button/Button';
 import { FaEye, FaPencil } from 'react-icons/fa6';
 import { ErrorIcon } from '@/icons';
+import { Dispatch, SetStateAction } from 'react';
 
 interface Evento {
     idEvento: number;
@@ -15,6 +16,7 @@ interface Evento {
     fechaFin: Date;
     descripcion: string | null;
     idCategoria: number;
+    nombreCategoria: string;
     cantidadAforo: number;
     inscritos: number;
     estado: number;
@@ -23,11 +25,15 @@ interface Evento {
 
 interface ListEventosProps {
     eventos: Evento[];
+    setEventoSelected: Dispatch<SetStateAction<any>>;
+    setOpenModalInscripcion: Dispatch<SetStateAction<boolean>>;
 
 }
 
 export default function ListEventosEstudiante({
     eventos,
+    setEventoSelected,
+    setOpenModalInscripcion
 
 }: ListEventosProps) {
 
@@ -57,7 +63,7 @@ export default function ListEventosEstudiante({
                                 </div>
                                 <div>
                                     <p className="font-semibold">Categoría:</p>
-                                    <p className='text-sm'>{evento.idCategoria}</p>
+                                    <p className='text-sm'>{evento.nombreCategoria}</p>
                                 </div>
                                 <div>
                                     <p className="font-semibold">Fecha Inicio:</p>
@@ -101,6 +107,10 @@ export default function ListEventosEstudiante({
                                             size='sm'
                                             className="bg-success-500  hover:bg-success-800"
                                             startIcon={<FaPencil />}
+                                            onClick={() => {
+                                                setEventoSelected(evento)
+                                                setOpenModalInscripcion(true)
+                                            }}
                                         >
 
                                             Inscribirme
@@ -132,11 +142,13 @@ export default function ListEventosEstudiante({
             </div>
 
 
-            {eventos.length === 0 && (
-                <div className="flex justify-center items-center h-90">
-                    <h1 className="text-gray-500">No hay eventos</h1>
-                </div>
-            )}
-        </div>
+            {
+                eventos.length === 0 && (
+                    <div className="flex justify-center items-center h-90">
+                        <h1 className="text-gray-500">No hay eventos</h1>
+                    </div>
+                )
+            }
+        </div >
     )
 }

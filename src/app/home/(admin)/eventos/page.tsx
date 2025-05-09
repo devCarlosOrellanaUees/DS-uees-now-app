@@ -28,6 +28,7 @@ interface Evento {
     cantidadAforo: number;
     estado: number;
     banner: string;
+    inscritos: number;
 }
 
 export default function page() {
@@ -53,6 +54,7 @@ export default function page() {
     const [codigoCategoria, setCodigoCategoria] = useState(1);
     const [descripcion, setDescripcion] = useState("");
     const [cantidadAforo, setCantidadAforo] = useState(0);
+    const [inscritos, setInscritos] = useState(0);
     //
     const [dataEventos, setDataEventos] = useState([]);
     //
@@ -93,7 +95,8 @@ export default function page() {
                 idCategoria: codigoCategoria,
                 cantidadAforo: cantidadAforo,
                 estado: eventoSelected?.estado || 1,
-                banner: "foto.png"
+                banner: "foto.png",
+                inscritos: inscritos
             }
 
             console.log("BODY: ", JSON.stringify(request, null, 2))
@@ -270,6 +273,7 @@ export default function page() {
         setCodigoCategoria(1)
         setDescripcion("")
         setCantidadAforo(0)
+        setInscritos(0)
     }
 
     useEffect(() => {
@@ -322,6 +326,7 @@ export default function page() {
                     setCodigoCategoria={setCodigoCategoria}
                     setDescripcion={setDescripcion}
                     setCantidadAforo={setCantidadAforo}
+                    setInscritos={setInscritos}
 
                     setEventoSelect={setEventoSelect}
                 />

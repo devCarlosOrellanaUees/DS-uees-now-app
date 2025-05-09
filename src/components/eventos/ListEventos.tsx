@@ -1,15 +1,12 @@
 "use client";
 
-import { useAuth } from '@/context/AuthContext';
-import { formatDateSmall, formatDateTime } from '@/utils/common';
+import { formatDateSmall } from '@/utils/common';
 import Image from 'next/image';
 import { Dispatch, SetStateAction, useState } from 'react';
 import { FaCog, FaImage } from 'react-icons/fa';
 import Badge from '../ui/badge/Badge';
-import Button from '../ui/button/Button';
 import { Dropdown } from '../ui/dropdown/Dropdown';
 import { DropdownItem } from '../ui/dropdown/DropdownItem';
-import { Modal } from '../ui/modal';
 
 interface Evento {
     idEvento: number;
@@ -21,6 +18,7 @@ interface Evento {
     cantidadAforo: number;
     estado: number;
     banner: string;
+    inscritos: number;
 }
 
 interface ListEventosProps {
@@ -35,6 +33,7 @@ interface ListEventosProps {
     setCodigoCategoria: Dispatch<SetStateAction<number>>;
     setDescripcion: Dispatch<SetStateAction<string>>;
     setCantidadAforo: Dispatch<SetStateAction<number>>;
+    setInscritos: Dispatch<SetStateAction<number>>;
     setOpenConfirmation: Dispatch<SetStateAction<boolean>>;
     setEventoSelect: Dispatch<SetStateAction<any>>
 }
@@ -52,6 +51,7 @@ export default function ListEventos({
     setCodigoCategoria,
     setDescripcion,
     setCantidadAforo,
+    setInscritos,
     setOpenConfirmation,
     setEventoSelect
 }: ListEventosProps) {
@@ -83,6 +83,7 @@ export default function ListEventos({
         setCodigoCategoria(evento.idCategoria)
         setDescripcion(evento.descripcion ?? '')
         setCantidadAforo(evento.cantidadAforo)
+        setInscritos(evento.inscritos)
 
         switch (option) {
             case 'Editar':

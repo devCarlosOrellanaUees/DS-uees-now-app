@@ -14,6 +14,7 @@ interface Evento {
     fechaFin: Date;
     descripcion: string | null;
     idCategoria: number;
+    nombreCategoria: string;
     cantidadAforo: number;
     inscritos: number;
     estado: number;
@@ -56,7 +57,7 @@ export default function ListEventosInscritos({
                                 </div>
                                 <div>
                                     <p className="font-semibold">Categoría:</p>
-                                    <p className='text-sm'>{evento.idCategoria}</p>
+                                    <p className='text-sm'>{evento.nombreCategoria}</p>
                                 </div>
                                 <div>
                                     <p className="font-semibold">Fecha Inicio:</p>
