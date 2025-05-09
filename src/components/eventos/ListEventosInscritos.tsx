@@ -6,6 +6,7 @@ import { FaImage } from 'react-icons/fa';
 import Badge from '../ui/badge/Badge';
 import Button from '../ui/button/Button';
 import { FaEye, FaPencil } from 'react-icons/fa6';
+import { Dispatch, SetStateAction } from 'react';
 
 interface Evento {
     idEvento: number;
@@ -23,11 +24,15 @@ interface Evento {
 
 interface ListEventosProps {
     eventos: Evento[];
+    setEventoSelected: Dispatch<SetStateAction<any>>;
+    setOpenModalDetalles: Dispatch<SetStateAction<boolean>>;
 
 }
 
 export default function ListEventosInscritos({
     eventos,
+    setEventoSelected,
+    setOpenModalDetalles
 
 }: ListEventosProps) {
 
@@ -99,6 +104,10 @@ export default function ListEventosInscritos({
                                     variant='outline'
                                     size='sm'
                                     startIcon={<FaEye />}
+                                    onClick={() => {
+                                        setEventoSelected(evento)
+                                        setOpenModalDetalles(true)
+                                    }}
                                 >
                                     Ver detalles
                                 </Button>
@@ -110,11 +119,13 @@ export default function ListEventosInscritos({
             </div>
 
 
-            {eventos.length === 0 && (
-                <div className="flex justify-center items-center h-90">
-                    <h1 className="text-gray-500">No hay eventos</h1>
-                </div>
-            )}
-        </div>
+            {
+                eventos.length === 0 && (
+                    <div className="flex justify-center items-center h-90">
+                        <h1 className="text-gray-500">No hay eventos</h1>
+                    </div>
+                )
+            }
+        </div >
     )
 }

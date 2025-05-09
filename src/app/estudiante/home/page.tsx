@@ -146,7 +146,7 @@ export default function Home() {
         />
 
         {/*  */}
-        {/* MODAL CONFIMACION DE SUSPENCION */}
+        {/* MODAL INSCRIPCION */}
         {/*  */}
         <Modal
           isOpen={openModalInscripcion}
@@ -239,7 +239,7 @@ export default function Home() {
         </Modal>
 
         {/*  */}
-        {/* END MODAL CONFIRMATION SUSPENCION */}
+        {/* END MODAL INSCRIPCION */}
         {/*  */}
 
 

@@ -24,6 +24,8 @@ const endpoints = {
     getAllEventosDisponibles: `${URL_CONTEXT_APP}/api/evento/disponibles/usuario`,
     getAllEventosInscritos: `${URL_CONTEXT_APP}/api/evento/inscritos/usuario`,
     saveInscripcion: `${URL_CONTEXT_APP}/api/inscripcion/save`,
+    saveComentario: `${URL_CONTEXT_APP}/api/comentario/save`,
+    getAllComentarios: `${URL_CONTEXT_APP}/api/comentario/all`,
 
 
 
