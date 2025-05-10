@@ -10,7 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 
 export default function UserDropdown() {
 
-  const { user, logout } = useAuth();  
+  const { user, logout } = useAuth();
 
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
@@ -26,8 +26,8 @@ export default function UserDropdown() {
 
   //TODO: CERRAR SESION
   const handleLogout = () => {
-    logout(); 
-    router.replace('/auth/signin'); 
+    logout();
+    router.replace('/auth/signin');
   };
 
 
@@ -46,7 +46,7 @@ export default function UserDropdown() {
           />
         </span>
         {/* TODO: USERNAME */}
-        <span className="block mr-1 font-medium text-theme-sm">Administración</span>
+        <span className="block mr-1 font-medium text-theme-sm">{user?.persona.nombres}</span>
 
         <svg
           className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""
@@ -74,10 +74,10 @@ export default function UserDropdown() {
       >
         <div>
           <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-          {user?.user || "Administrador Etikos"}
+            {user?.user.user || "Administrador Etikos"}
           </span>
           <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-           {user?.user || "etikos@gamil.com.ec"}
+            {user?.persona?.correo || "etikos@gamil.com.ec"}
           </span>
         </div>
 

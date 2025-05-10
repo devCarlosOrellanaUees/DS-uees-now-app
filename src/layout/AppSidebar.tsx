@@ -1,18 +1,20 @@
 "use client";
+import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { BsCalendar2CheckFill, BsCalendar2Date, BsCardChecklist, BsPersonCircle } from "react-icons/bs";
 import { useSidebar } from "../context/SidebarContext";
 import {
   ChevronDownIcon,
   GridIcon,
-  HorizontaLDots,
-  TableIcon,
-  UserCircleIcon
+  HorizontaLDots
 } from "../icons/index";
-import { FaMusic } from "react-icons/fa6";
-import { useAuth } from "@/context/AuthContext";
+
+
+
+
 
 type NavItem = {
   name: string;
@@ -30,42 +32,32 @@ const navItemsAdmin: NavItem[] = [
   },
   {
     name: "Eventos",
-    icon: <TableIcon />,
+    icon: <BsCalendar2Date size={22} />,
     path: "/home/eventos"
   },
   {
-    name: "Inscripciones",
-    icon: <TableIcon />,
+    name: "Inscripciones y aforos",
+    icon: <BsCardChecklist size={22} />,
     path: "/home/inscripciones"
-  },
-  {
-    name: "Aforos",
-    icon: <TableIcon />,
-    path: "/home/aforos"
-  },
+  }
 ];
 
 const navItemsEstudiante: NavItem[] = [
   {
-    icon: <FaMusic />,
+    icon: <BsCalendar2Date size={22} />,
     name: "Eventos publicados",
     path: "/estudiante/home"
   },
   {
     name: "Mis eventos",
-    icon: <TableIcon />,
+    icon: <BsCalendar2CheckFill size={22} />,
     path: "/estudiante/eventos"
-  },
-  {
-    name: "Certificados",
-    icon: <TableIcon />,
-    path: "/home/inscripciones"
   }
 ];
 
 const othersItems: NavItem[] = [
   {
-    icon: <UserCircleIcon />,
+    icon: <BsPersonCircle size={22} />,
     name: "Perfil",
     path: "/home/profile",
   }
@@ -80,7 +72,7 @@ const AppSidebar: React.FC = () => {
 
   /* TODO: RENDERIZADO DE OPCIONES EN BASE A ROL */
   const navItems: NavItem[] = [
-    ...(user?.idRol == 1 ? navItemsAdmin : navItemsEstudiante)
+    ...(user?.user.idRol == 1 ? navItemsAdmin : navItemsEstudiante)
   ];
 
   const renderMenuItems = (

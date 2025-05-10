@@ -10,17 +10,30 @@ interface User {
   idPersona: number;
 }
 
+interface Persona {
+  idPersona: number;
+  nombres: string;
+  cedula: string;
+  correo: string;
+  telefono: string;
+}
+
+interface DataUser {
+  user: User;
+  persona: Persona;
+}
+
 
 interface AuthContextType {
-  user: User | null;
-  setUser: (user: User | null) => void;
+  user: DataUser | null;
+  setUser: (user: DataUser | null) => void;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUserState] = useState<User | null>(null);
+  const [user, setUserState] = useState<DataUser | null>(null);
 
   // Restaurar usuario desde localStorage
   useEffect(() => {
@@ -31,7 +44,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   // Guardar en localStorage al cambiar
-  const setUser = (user: User | null) => {
+  const setUser = (user: DataUser | null) => {
     setUserState(user);
     if (user) {
       localStorage.setItem('user', JSON.stringify(user));

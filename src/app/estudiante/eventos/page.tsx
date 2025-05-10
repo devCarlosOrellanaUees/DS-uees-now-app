@@ -60,7 +60,7 @@ export default function EventosInscritos() {
         setLoading(true)
         try {
             setDataEventos([])
-            const response = await fetchAPI(endpoints.getAllEventosInscritos + '?codigoUsuario=' + user?.idUsuario, 'GET')
+            const response = await fetchAPI(endpoints.getAllEventosInscritos + '?codigoUsuario=' + user?.user.idUsuario, 'GET')
             if (response.status == 1) {
                 setDataEventos(response.data)
             } else {
@@ -101,7 +101,7 @@ export default function EventosInscritos() {
                 comentario: nuevoComentario,
                 idEvento: eventoSelected?.idEvento,
                 fecha: new Date(),
-                idusuario: user?.idUsuario
+                idusuario: user?.user.idUsuario
             }
             const response = await fetchAPI(endpoints.saveComentario, 'POST', request)
             if (response.status == 1) {

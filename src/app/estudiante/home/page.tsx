@@ -30,6 +30,12 @@ interface Evento {
   banner: string;
 }
 
+interface Comentario {
+  autor: string;
+  texto: string;
+  fecha: string;
+}
+
 export default function Home() {
 
   //alert
@@ -42,8 +48,10 @@ export default function Home() {
   //
   const [dataEventos, setDataEventos] = useState([]);
   const [eventoSelected, setEventoSelected] = useState<Evento>();
+  const [comentarios, setComentarios] = useState<Comentario[]>([]);
   //
   const [openModalInscripcion, setOpenModalInscripcion] = useState(false);
+  const [openModalDetalles, setOpenModalDetalles] = useState(false);
 
 
 
@@ -53,7 +61,7 @@ export default function Home() {
     setLoading(true)
     try {
       setDataEventos([])
-      const response = await fetchAPI(endpoints.getAllEventosDisponibles + '?codigoUsuario=' + user?.idUsuario, 'GET')
+      const response = await fetchAPI(endpoints.getAllEventosDisponibles + '?codigoUsuario=' + user?.user.idUsuario, 'GET')
       if (response.status == 1) {
         setDataEventos(response.data)
       } else {
@@ -76,7 +84,7 @@ export default function Home() {
     try {
       const request = {
         idEvento: eventoSelected?.idEvento,
-        idUsuario: user?.idUsuario,
+        idUsuario: user?.user.idUsuario,
         estado: 1,
         fecha: new Date()
       }
@@ -105,11 +113,29 @@ export default function Home() {
     }
   }
 
-
+  const getAllComentarios = async () => {
+    setLoading(true)
+    try {
+      const response = await fetchAPI(endpoints.getAllComentarios + '?codigoEvento=' + eventoSelected?.idEvento, 'GET')
+      if (response.status == 1) {
+        setComentarios(response.data)
+      } else {
+        setComentarios([])
+      }
+    } catch (error) {
+      console.log("ERROR", error)
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
     getAllEventos()
   }, [])
+
+  useEffect(() => {
+    if (openModalDetalles) getAllComentarios();
+  }, [openModalDetalles])
 
   return (
     <div>
@@ -141,6 +167,7 @@ export default function Home() {
         <ListEventosEstudiante
           setEventoSelected={setEventoSelected}
           setOpenModalInscripcion={setOpenModalInscripcion}
+          setOpenModalDetalles={setOpenModalDetalles}
           eventos={dataEventos}
 
         />
@@ -237,9 +264,112 @@ export default function Home() {
             </div>
           </div>
         </Modal>
-
         {/*  */}
         {/* END MODAL INSCRIPCION */}
+        {/*  */}
+
+
+        {/*  */}
+        {/* MODAL DETALLES */}
+        {/*  */}
+        <Modal
+          isOpen={openModalDetalles}
+          onClose={() => {
+            setOpenModalDetalles(false)
+          }}
+          showCloseButton={false}
+          className="max-w-[907px] w-full max-h-[95vh] overflow-hidden flex flex-col p-4 lg:p-6"
+        >
+          {/* Contenido scrollable */}
+          <div className="overflow-y-auto pr-2 space-y-8">
+            {/* Encabezado: Imagen + Detalles */}
+            <div className="flex flex-col lg:flex-row gap-6">
+              {/* Imagen */}
+              <div className="w-full lg:w-1/2">
+                <Image
+                  className="w-full h-64 object-cover rounded-md"
+                  src="/images/banners/evento1.png"
+                  alt="Banner del evento"
+                  width={300}
+                  height={200}
+                />
+              </div>
+
+              {/* Detalles */}
+              <div className="w-full lg:w-1/2 space-y-4 text-sm text-gray-700 dark:text-gray-300">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div><p className="font-semibold">Nombre:</p><p>{eventoSelected?.nombre}</p></div>
+                  <div><p className="font-semibold">Categoría:</p><p>{eventoSelected?.nombreCategoria}</p></div>
+                  <div><p className="font-semibold">Fecha Inicio:</p><p>{formatDateSmall(eventoSelected?.fechaInicio ?? "")}</p></div>
+                  <div><p className="font-semibold">Fecha Fin:</p><p>{formatDateSmall(eventoSelected?.fechaFin ?? "")}</p></div>
+                  <div><p className="font-semibold">Aforo:</p><p>{eventoSelected?.cantidadAforo}</p></div>
+                  <div><p className="font-semibold">Estado:</p>
+                    <Badge size="sm"
+                      color={
+                        eventoSelected?.estado === 1
+                          ? 'success'
+                          : eventoSelected?.estado === 2
+                            ? 'info'
+                            : 'error'
+                      }
+                    >
+                      {eventoSelected?.estado === 1
+                        ? 'Activo'
+                        : eventoSelected?.estado === 2
+                          ? 'Suspendido'
+                          : 'Cerrado'}
+                    </Badge>
+                  </div>
+                  <div><p className="font-semibold">Inscritos:</p><p>{eventoSelected?.inscritos}</p></div>
+                  <div><p className="font-semibold">Cupos disponibles:</p><p>{(eventoSelected?.cantidadAforo ?? 0) - (eventoSelected?.inscritos ?? 0)}</p></div>
+                </div>
+
+                {/* Descripción */}
+                <div>
+                  <p className="font-semibold mb-1">Descripción:</p>
+                  <p className="text-justify text-gray-800 dark:text-white">
+                    {eventoSelected?.descripcion}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Sección de comentarios */}
+            <div>
+              <p className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
+                Comentarios
+              </p>
+
+              {/* Lista de comentarios con scroll interno */}
+              <div className="space-y-4 max-h-40 overflow-y-auto pr-2">
+                {comentarios?.map((comentario, index) => (
+                  <div key={index} className="flex items-start gap-3">
+                    {/* Avatar */}
+                    <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold">
+                      {comentario.autor?.charAt(0).toUpperCase()}
+                    </div>
+
+                    {/* Texto del comentario */}
+                    <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded-md w-full">
+                      <div className="flex justify-between items-center mb-1">
+                        <p className="font-semibold text-sm  text-gray-700 dark:text-gray-400">{comentario.autor}</p>
+                        <span className="text-xs text-gray-500">
+                          {formatDateSmall(comentario.fecha)}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-700 dark:text-gray-200">
+                        {comentario.texto}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </Modal>
+
+        {/*  */}
+        {/* END MODAL DETALLES */}
         {/*  */}
 
 

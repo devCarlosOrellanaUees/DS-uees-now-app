@@ -27,13 +27,15 @@ interface ListEventosProps {
     eventos: Evento[];
     setEventoSelected: Dispatch<SetStateAction<any>>;
     setOpenModalInscripcion: Dispatch<SetStateAction<boolean>>;
+    setOpenModalDetalles: Dispatch<SetStateAction<boolean>>;
 
 }
 
 export default function ListEventosEstudiante({
     eventos,
     setEventoSelected,
-    setOpenModalInscripcion
+    setOpenModalInscripcion,
+    setOpenModalDetalles
 
 }: ListEventosProps) {
 
@@ -119,6 +121,10 @@ export default function ListEventosEstudiante({
                                             variant='outline'
                                             size='sm'
                                             startIcon={<FaEye />}
+                                            onClick={() => {
+                                                setEventoSelected(evento)
+                                                setOpenModalDetalles(true)
+                                            }}
                                         >
                                             Ver detalles
                                         </Button>

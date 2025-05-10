@@ -14,9 +14,16 @@ const endpoints = {
     //PAGE LOIGN
     login: `${URL_CONTEXT_APP}/api/usuario/login`,
 
+
     //PAGE EVENTOS ROL ADMIN
     saveEvento: `${URL_CONTEXT_APP}/api/evento/save`,
     getAllEventos: `${URL_CONTEXT_APP}/api/evento/all`,
+    
+
+    //PAGE INSCRIPCIONES ROL ADMIN
+    getAllEventosConInscritos: `${URL_CONTEXT_APP}/api/evento/inscritos/all`,
+    getAllPersonasInscritasByEvento: `${URL_CONTEXT_APP}/api/inscripcion/usuarios/inscritos`,
+
 
 
 
