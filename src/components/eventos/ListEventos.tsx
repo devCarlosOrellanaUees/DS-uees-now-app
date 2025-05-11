@@ -136,7 +136,11 @@ export default function ListEventos({
                                 </div>
                                 <div>
                                     <p className="font-semibold">Categoría:</p>
-                                    <p className='text-sm'>{evento.idCategoria}</p>
+                                    <p className='text-sm'>
+                                        {evento.idCategoria == 1 ? 'DEPORTIVO'
+                                            : evento.idCategoria == 2 ? 'SOCIAL' : 'EDUCATIVO'
+                                        }
+                                    </p>
                                 </div>
                                 <div>
                                     <p className="font-semibold">Fecha Inicio:</p>

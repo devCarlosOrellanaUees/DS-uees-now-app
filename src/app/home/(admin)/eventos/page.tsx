@@ -66,8 +66,8 @@ export default function page() {
 
     const options = [
         { value: 1, label: "Evento deportivo" },
-        { value: 2, label: "Evento educativo" },
-        { value: 3, label: "Evento de certificación" },
+        { value: 2, label: "Evento social" },
+        { value: 3, label: "Evento educativo" },
     ];
 
     const optionsEstadoEvento = [

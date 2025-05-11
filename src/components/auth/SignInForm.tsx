@@ -38,8 +38,8 @@ export default function SignInForm() {
   const [variant, setVariant] = useState<"success" | "error" | "warning" | "info">("success")
 
   //credenciales
-  const [email, setEmail] = useState('admin');
-  const [password, setPassword] = useState('admin');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   //Token
   const { setUser } = useAuth();
 
@@ -68,7 +68,7 @@ export default function SignInForm() {
       setUser(response.data);
       if (response.status == 1) {
 
-        if (response.data.idRol == 1) {
+        if (response.data.user.idRol == 1) {
           //ADMIN
           router.replace('/home');
         } else {
